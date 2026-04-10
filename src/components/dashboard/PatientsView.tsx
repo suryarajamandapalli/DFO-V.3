@@ -33,6 +33,15 @@ import {
     TableHeader,
     TableRow
 } from '@/components/ui/table';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuLabel,
+    DropdownMenuRadioGroup,
+    DropdownMenuRadioItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Patient, RiskLevel } from '@/types';
 import { PrintPortal } from './PrintPortal';
 import { cn } from '@/lib/utils';
@@ -48,11 +57,54 @@ export const PatientsView = ({
     setSearchTerm: (s: string) => void,
     onSelectPatient: (p: Patient) => void
 }) => {
+    const [riskFilter, setRiskFilter] = React.useState<string>('ALL');
+    const [stageFilter, setStageFilter] = React.useState<string>('ALL');
+
     const filteredPatients = patients.filter(p => {
         const nameMatch = p.name?.toLowerCase().includes(searchTerm.toLowerCase());
         const phoneMatch = p.phone?.includes(searchTerm);
-        return nameMatch || phoneMatch;
+        const riskMatch = riskFilter === 'ALL' || p.riskLevel === riskFilter;
+        const stageMatch = stageFilter === 'ALL' || p.journeyStage === stageFilter;
+        return (nameMatch || phoneMatch) && riskMatch && stageMatch;
     });
+
+    const handleExportExcel = () => {
+        if (filteredPatients.length === 0) return;
+
+        // Header
+        const headers = ["Name", "Phone", "Age", "Journey Stage", "Risk Level", "Last Visit", "BP", "Weight", "Heart Rate", "Temp"];
+        
+        // Rows
+        const rows = filteredPatients.map(p => [
+            p.name,
+            p.phone,
+            p.age,
+            p.journeyStage,
+            p.riskLevel,
+            p.lastVisit || '',
+            p.vitals?.bp || '',
+            p.vitals?.weight || '',
+            p.vitals?.heartRate || '',
+            p.vitals?.temp || ''
+        ]);
+
+        // CSV Construction
+        const csvContent = [
+            headers.join(","),
+            ...rows.map(r => r.map(field => `"${field}"`).join(","))
+        ].join("\n");
+
+        // Download
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", `JANMASETHU_PATIENTS_${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
 
 
 
@@ -75,10 +127,37 @@ export const PatientsView = ({
                         />
                     </div>
                     <div className="flex items-center gap-2">
-                        <Button variant="outline" size="icon" className="rounded-xl border-slate-200 shrink-0">
-                            <Filter className="h-4 w-4" />
-                        </Button>
-                        <Button variant="outline" className="rounded-xl border-slate-200 font-bold uppercase text-[10px] tracking-widest gap-2">
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="outline" size="icon" className={cn("rounded-xl border-slate-200 shrink-0", (riskFilter !== 'ALL' || stageFilter !== 'ALL') && "bg-primary/10 border-primary text-primary")}>
+                                    <Filter className="h-4 w-4" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-56 p-2 rounded-2xl">
+                                <DropdownMenuLabel className="p-2 text-[10px] font-black uppercase text-slate-400">Risk Severity</DropdownMenuLabel>
+                                <DropdownMenuRadioGroup value={riskFilter} onValueChange={setRiskFilter}>
+                                    <DropdownMenuRadioItem value="ALL" className="rounded-lg text-xs font-bold">All Patients</DropdownMenuRadioItem>
+                                    <DropdownMenuRadioItem value="RED" className="rounded-lg text-xs font-bold text-red-600">High Risk (RED)</DropdownMenuRadioItem>
+                                    <DropdownMenuRadioItem value="YELLOW" className="rounded-lg text-xs font-bold text-amber-600">Moderate (YELLOW)</DropdownMenuRadioItem>
+                                    <DropdownMenuRadioItem value="GREEN" className="rounded-lg text-xs font-bold text-emerald-600">Low Risk (GREEN)</DropdownMenuRadioItem>
+                                </DropdownMenuRadioGroup>
+                                <DropdownMenuSeparator className="my-2" />
+                                <DropdownMenuLabel className="p-2 text-[10px] font-black uppercase text-slate-400">Journey Stage</DropdownMenuLabel>
+                                <DropdownMenuRadioGroup value={stageFilter} onValueChange={setStageFilter}>
+                                    <DropdownMenuRadioItem value="ALL" className="rounded-lg text-xs font-bold">All Stages</DropdownMenuRadioItem>
+                                    <DropdownMenuRadioItem value="trying_to_conceive" className="rounded-lg text-xs font-bold">TTC</DropdownMenuRadioItem>
+                                    <DropdownMenuRadioItem value="pregnancy" className="rounded-lg text-xs font-bold">Pregnancy</DropdownMenuRadioItem>
+                                    <DropdownMenuRadioItem value="postpartum" className="rounded-lg text-xs font-bold">Postpartum</DropdownMenuRadioItem>
+                                </DropdownMenuRadioGroup>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+
+                        <Button 
+                            variant="outline" 
+                            onClick={handleExportExcel}
+                            disabled={filteredPatients.length === 0}
+                            className="rounded-xl border-slate-200 font-bold uppercase text-[10px] tracking-widest gap-2"
+                        >
                             <Download className="h-4 w-4" /> <span className="hidden sm:inline">Export</span>
                         </Button>
                     </div>
