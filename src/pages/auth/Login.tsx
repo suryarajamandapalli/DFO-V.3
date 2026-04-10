@@ -154,23 +154,6 @@ export function Login({ onSwitchToSignup, onBackToLanding }: { onSwitchToSignup:
           </div>
 
 
-            <div className="mt-8 pt-6 border-t border-slate-100">
-              <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
-                <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Login Troubleshooting</h4>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-[10px] font-bold text-slate-500">Detected Origin:</span>
-                    <code className="text-[9px] font-black text-sky-600 bg-white px-1.5 py-0.5 rounded border border-sky-100">
-                      {typeof window !== 'undefined' ? window.location.origin : 'N/A'}
-                    </code>
-                  </div>
-                  <p className="text-[9px] leading-relaxed text-slate-400 font-medium">
-                    If you are redirected to <span className="font-bold">localhost</span> after login, please ensure that the origin above is added to your <span className="italic">Supabase Dashboard &gt; Auth &gt; URL Configuration</span>.
-                  </p>
-                </div>
-              </div>
-            </div>
-
             <div className="mt-6 flex flex-col gap-3">
               <button
                 onClick={onSwitchToSignup}

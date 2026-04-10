@@ -9,7 +9,10 @@ import {
     ArrowRight,
     Clock,
     UserPlus,
-    Activity
+    Activity,
+    FileText,
+    Bell,
+    CheckCircle2
 } from "lucide-react";
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -26,6 +29,16 @@ interface RiskMonitorProps {
 }
 
 export const RiskMonitorView = ({ patients, leads = [], appointments = [], threads = [], role = 'DOCTOR' }: RiskMonitorProps) => {
+    const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
+    const [isPrintingPoster, setIsPrintingPoster] = React.useState(false);
+
+    const handleDownloadDutyPoster = () => {
+        setIsPrintingPoster(true);
+        setTimeout(() => {
+            window.print();
+            setIsPrintingPoster(false);
+        }, 500);
+    };
 
     // CRO Operational Dashboard
     if (role === 'CRO') {
@@ -166,12 +179,41 @@ export const RiskMonitorView = ({ patients, leads = [], appointments = [], threa
                         <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-red-500 animate-ping" />
                         {highRisk.length} High Risk
                     </Badge>
-                    <Button variant="outline" size="icon" className="h-9 w-9 md:h-10 md:w-10 rounded-xl border-border">
+                    <Button 
+                        variant="outline" 
+                        size="icon" 
+                        className={cn("h-9 w-9 md:h-10 md:w-10 rounded-xl border-border transition-all", isSettingsOpen && "bg-primary text-primary-foreground border-primary")}
+                        onClick={() => setIsSettingsOpen(!isSettingsOpen)}
+                    >
                         <Settings className="h-4 w-4" />
                     </Button>
                 </div>
 
             </div>
+
+            {isSettingsOpen && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 animate-in slide-in-from-top-4 fade-in duration-300">
+                    <Card className="p-4 rounded-2xl bg-sky-50 border-sky-100 ring-1 ring-sky-200">
+                        <p className="text-[10px] font-black uppercase text-sky-600 mb-1">Alert Threshold</p>
+                        <h4 className="text-sm font-bold text-sky-900">BP: 140/90 mmHg</h4>
+                    </Card>
+                    <Card className="p-4 rounded-2xl bg-amber-50 border-amber-100 ring-1 ring-amber-200">
+                        <p className="text-[10px] font-black uppercase text-amber-600 mb-1">SLA Deadline</p>
+                        <h4 className="text-sm font-bold text-amber-900">15 Minutes</h4>
+                    </Card>
+                    <Card className="p-4 rounded-2xl bg-indigo-50 border-indigo-100 ring-1 ring-indigo-200">
+                        <p className="text-[10px] font-black uppercase text-indigo-600 mb-1">Sync Frequency</p>
+                        <h4 className="text-sm font-bold text-indigo-900">Real-time</h4>
+                    </Card>
+                    <Card className="p-4 rounded-2xl bg-slate-50 border-slate-200 flex items-center justify-between">
+                        <div>
+                            <p className="text-[10px] font-black uppercase text-slate-500 mb-1">Notifications</p>
+                            <h4 className="text-sm font-bold text-slate-900">Enabled</h4>
+                        </div>
+                        <Badge className="bg-emerald-500 text-white border-none">Active</Badge>
+                    </Card>
+                </div>
+            )}
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2 space-y-6">
@@ -260,7 +302,12 @@ export const RiskMonitorView = ({ patients, leads = [], appointments = [], threa
                             </div>
                         </div>
 
-                        <Button className="w-full mt-6 md:mt-8 h-10 md:h-12 bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl md:rounded-2xl font-black uppercase text-[10px] md:text-xs tracking-widest transition-all shadow-xl">Duty Roster</Button>
+                        <Button 
+                            onClick={handleDownloadDutyPoster}
+                            className="w-full mt-6 md:mt-8 h-10 md:h-12 bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl md:rounded-2xl font-black uppercase text-[10px] md:text-xs tracking-widest transition-all shadow-xl gap-2"
+                        >
+                            <FileText className="h-4 h-4" /> Download Duty Poster
+                        </Button>
 
                     </Card>
 
@@ -276,6 +323,93 @@ export const RiskMonitorView = ({ patients, leads = [], appointments = [], threa
                     </div>
                 </div>
             </div>
+            </div>
+
+            {/* Duty Roster Print Template */}
+            {isPrintingPoster && (
+                <div 
+                    className="fixed inset-0 z-[9999] bg-white p-16 overflow-visible print:block hidden font-sans"
+                    id="duty-roster-print"
+                >
+                    <div className="flex justify-between items-start border-b-2 border-slate-900 pb-8 mb-8">
+                        <div>
+                            <h1 className="text-4xl font-black tracking-tighter text-slate-900 italic">JANMA SETHU</h1>
+                            <p className="text-sm font-bold uppercase tracking-widest text-slate-500">Clinical OS • Duty Roster</p>
+                        </div>
+                        <div className="text-right">
+                            <p className="text-sm font-black uppercase tracking-widest">Effective Date</p>
+                            <p className="text-xl font-bold">{new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-12 mb-12">
+                        <div className="space-y-6">
+                            <h3 className="text-lg font-black uppercase tracking-widest bg-slate-100 p-2 inline-block">Morning Shift (08:00 - 14:00)</h3>
+                            <div className="space-y-4">
+                                <div className="flex justify-between items-center border-b border-slate-100 pb-2">
+                                    <span className="font-bold">Lead Clinician</span>
+                                    <span>Dr. Alexander Smith</span>
+                                </div>
+                                <div className="flex justify-between items-center border-b border-slate-100 pb-2">
+                                    <span className="font-bold">Nursing Lead</span>
+                                    <span>Sarah Jenkins, RN</span>
+                                </div>
+                                <div className="flex justify-between items-center border-b border-slate-100 pb-2">
+                                    <span className="font-bold">Administrative Lead</span>
+                                    <span>Priya Sharma</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="space-y-6">
+                            <h3 className="text-lg font-black uppercase tracking-widest bg-slate-100 p-2 inline-block">Evening Shift (14:00 - 20:00)</h3>
+                            <div className="space-y-4">
+                                <div className="flex justify-between items-center border-b border-slate-100 pb-2">
+                                    <span className="font-bold">Lead Clinician</span>
+                                    <span>Dr. Michael Ross</span>
+                                </div>
+                                <div className="flex justify-between items-center border-b border-slate-100 pb-2">
+                                    <span className="font-bold">Nursing Lead</span>
+                                    <span>James Wilson, RN</span>
+                                </div>
+                                <div className="flex justify-between items-center border-b border-slate-100 pb-2">
+                                    <span className="font-bold">Administrative Lead</span>
+                                    <span>Karthik Raj</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="bg-red-50 p-8 rounded-2xl border-2 border-red-100 mb-12">
+                        <h3 className="text-lg font-black uppercase tracking-widest text-red-600 mb-4 flex items-center gap-2">
+                            <Bell className="h-5 w-5" /> Emergency Protocols
+                        </h3>
+                        <p className="text-sm font-medium text-red-900 leading-relaxed">
+                            In the event of a RED risk level breach, the lead clinician on shift must be paged immediately via the secondary radio channel. All triage responses must be logged in the Clinical OS within 90 seconds of detection.
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-8">
+                        <div className="text-center p-4 border border-slate-200 rounded-xl">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Total Pooled</p>
+                            <p className="text-2xl font-black">{patients.length}</p>
+                        </div>
+                        <div className="text-center p-4 border border-slate-200 rounded-xl">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">High Risk Pool</p>
+                            <p className="text-2xl font-black">{patients.filter(p => p.riskLevel === 'RED').length}</p>
+                        </div>
+                        <div className="text-center p-4 bg-slate-900 text-white rounded-xl">
+                            <p className="text-[10px] font-black uppercase tracking-widest opacity-60">Status</p>
+                            <p className="text-xl font-black">OPERATIONAL</p>
+                        </div>
+                    </div>
+
+                    <div className="absolute bottom-16 left-16 right-16 flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em]">
+                        <span>JanmaSethu Clinical OS • Internal Document</span>
+                        <span>Generated: {new Date().toLocaleString()}</span>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
