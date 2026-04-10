@@ -376,7 +376,7 @@ export const PatientDetailView = ({
                                             </div>
                                             <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">{event.type}</p>
 
-                                            <div className="mt-3 p-4 rounded-2xl bg-slate-50 border border-slate-100 hidden group-hover:block animate-in fade-in slide-in-from-top-2">
+                                            <div className="mt-3 p-4 rounded-2xl bg-slate-50 border border-slate-100 group-hover:bg-slate-100/50 transition-colors animate-in fade-in slide-in-from-top-2">
                                                 <p className="text-xs text-slate-600 leading-relaxed font-medium">Standard clinical evaluation conducted. Vital signs within normal parameters for the patient's gestational stage.</p>
                                                 <Button 
                                                     variant="link" 
