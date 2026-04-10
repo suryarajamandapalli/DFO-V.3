@@ -165,7 +165,7 @@ export function Login({ onSwitchToSignup, onBackToLanding }: { onSwitchToSignup:
                     </code>
                   </div>
                   <p className="text-[9px] leading-relaxed text-slate-400 font-medium">
-                    If you are redirected to <span className="font-bold">localhost</span> after login, please ensure that the origin above is added to your <span className="italic">Supabase Dashboard -> Auth -> URL Configuration</span>.
+                    If you are redirected to <span className="font-bold">localhost</span> after login, please ensure that the origin above is added to your <span className="italic">Supabase Dashboard &gt; Auth &gt; URL Configuration</span>.
                   </p>
                 </div>
               </div>
