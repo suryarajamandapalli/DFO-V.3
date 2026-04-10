@@ -199,12 +199,24 @@ export const PatientsView = ({
                                                     </div>
                                                 </div>
 
-                                                <Button 
-                                                    className="w-full rounded-xl bg-primary/10 text-primary hover:bg-primary/20 border-none h-10 font-black uppercase text-[10px] tracking-widest mt-2"
-                                                    onClick={() => setIsFilterOpen(false)}
-                                                >
-                                                    Refine Registry View
-                                                </Button>
+                                                <div className="flex gap-2 mt-2">
+                                                    <Button 
+                                                        variant="ghost"
+                                                        className="flex-1 rounded-xl font-black uppercase text-[10px] tracking-widest text-muted-foreground hover:bg-muted"
+                                                        onClick={() => {
+                                                            setRiskFilter('ALL');
+                                                            setStageFilter('ALL');
+                                                        }}
+                                                    >
+                                                        Reset
+                                                    </Button>
+                                                    <Button 
+                                                        className="flex-[2] rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 border-none h-10 font-black uppercase text-[10px] tracking-widest"
+                                                        onClick={() => setIsFilterOpen(false)}
+                                                    >
+                                                        Refine View
+                                                    </Button>
+                                                </div>
                                             </div>
                                         </motion.div>
                                     </>
