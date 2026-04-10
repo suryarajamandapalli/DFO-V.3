@@ -33,15 +33,6 @@ import {
     TableHeader,
     TableRow
 } from '@/components/ui/table';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuLabel,
-    DropdownMenuRadioGroup,
-    DropdownMenuRadioItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { Patient, RiskLevel } from '@/types';
 import { PrintPortal } from './PrintPortal';
 import { cn } from '@/lib/utils';
@@ -126,32 +117,7 @@ export const PatientsView = ({
                             className="pl-9 rounded-xl border-slate-200"
                         />
                     </div>
-                    <div className="flex items-center gap-2">
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="outline" size="icon" className={cn("rounded-xl border-slate-200 shrink-0", (riskFilter !== 'ALL' || stageFilter !== 'ALL') && "bg-primary/10 border-primary text-primary")}>
-                                    <Filter className="h-4 w-4" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-56 p-2 rounded-2xl">
-                                <DropdownMenuLabel className="p-2 text-[10px] font-black uppercase text-slate-400">Risk Severity</DropdownMenuLabel>
-                                <DropdownMenuRadioGroup value={riskFilter} onValueChange={setRiskFilter}>
-                                    <DropdownMenuRadioItem value="ALL" className="rounded-lg text-xs font-bold">All Patients</DropdownMenuRadioItem>
-                                    <DropdownMenuRadioItem value="RED" className="rounded-lg text-xs font-bold text-red-600">High Risk (RED)</DropdownMenuRadioItem>
-                                    <DropdownMenuRadioItem value="YELLOW" className="rounded-lg text-xs font-bold text-amber-600">Moderate (YELLOW)</DropdownMenuRadioItem>
-                                    <DropdownMenuRadioItem value="GREEN" className="rounded-lg text-xs font-bold text-emerald-600">Low Risk (GREEN)</DropdownMenuRadioItem>
-                                </DropdownMenuRadioGroup>
-                                <DropdownMenuSeparator className="my-2" />
-                                <DropdownMenuLabel className="p-2 text-[10px] font-black uppercase text-slate-400">Journey Stage</DropdownMenuLabel>
-                                <DropdownMenuRadioGroup value={stageFilter} onValueChange={setStageFilter}>
-                                    <DropdownMenuRadioItem value="ALL" className="rounded-lg text-xs font-bold">All Stages</DropdownMenuRadioItem>
-                                    <DropdownMenuRadioItem value="trying_to_conceive" className="rounded-lg text-xs font-bold">TTC</DropdownMenuRadioItem>
-                                    <DropdownMenuRadioItem value="pregnancy" className="rounded-lg text-xs font-bold">Pregnancy</DropdownMenuRadioItem>
-                                    <DropdownMenuRadioItem value="postpartum" className="rounded-lg text-xs font-bold">Postpartum</DropdownMenuRadioItem>
-                                </DropdownMenuRadioGroup>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-
+                    <div className="flex flex-wrap items-center gap-2">
                         <Button 
                             variant="outline" 
                             onClick={handleExportExcel}
@@ -161,6 +127,49 @@ export const PatientsView = ({
                             <Download className="h-4 w-4" /> <span className="hidden sm:inline">Export</span>
                         </Button>
                     </div>
+                </div>
+            </div>
+
+            <div className="flex flex-col gap-4">
+                <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-[10px] font-black uppercase text-muted-foreground mr-2 tracking-widest">Risk Analysis:</span>
+                    {['ALL', 'RED', 'YELLOW', 'GREEN'].map((r) => (
+                        <button
+                            key={r}
+                            onClick={() => setRiskFilter(r)}
+                            className={cn(
+                                "px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all border",
+                                riskFilter === r 
+                                    ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20 scale-105" 
+                                    : "bg-muted text-muted-foreground border-border hover:border-primary/40"
+                            )}
+                        >
+                            {r === 'ALL' ? 'Total Pool' : r}
+                        </button>
+                    ))}
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-[10px] font-black uppercase text-muted-foreground mr-2 tracking-widest">Journey Stage:</span>
+                    {[
+                        { id: 'ALL', label: 'All Stages' },
+                        { id: 'trying_to_conceive', label: 'TTC' },
+                        { id: 'pregnancy', label: 'Pregnancy' },
+                        { id: 'postpartum', label: 'Postpartum' }
+                    ].map((s) => (
+                        <button
+                            key={s.id}
+                            onClick={() => setStageFilter(s.id)}
+                            className={cn(
+                                "px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all border",
+                                stageFilter === s.id 
+                                    ? "bg-slate-900 text-white border-slate-900 shadow-lg shadow-slate-900/20 scale-105" 
+                                    : "bg-muted text-muted-foreground border-border hover:border-slate-400"
+                            )}
+                        >
+                            {s.label}
+                        </button>
+                    ))}
                 </div>
             </div>
 
