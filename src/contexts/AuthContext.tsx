@@ -160,10 +160,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signInWithGoogle = async () => {
     try {
       console.log("Auth: Initiating Google Sign In...");
+      const redirectUrl = typeof window !== 'undefined' 
+        ? `${window.location.origin}` 
+        : 'https://janmasethu-dfo.vercel.app';
+      
+      console.log("Auth: Redirecting to:", redirectUrl);
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: window.location.origin
+          redirectTo: redirectUrl,
+          queryParams: {
+            prompt: 'select_account',
+            access_type: 'offline'
+          }
         }
       });
       if (error) throw error;
