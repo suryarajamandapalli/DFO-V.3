@@ -323,7 +323,6 @@ export const RiskMonitorView = ({ patients, leads = [], appointments = [], threa
                     </div>
                 </div>
             </div>
-            </div>
 
             {/* Duty Roster Print Template */}
             {isPrintingPoster && (
