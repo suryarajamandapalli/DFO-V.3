@@ -19,6 +19,7 @@ import {
     MessageSquare
 } from 'lucide-react';
 import { triggerCall, triggerWhatsApp, triggerSmartCall } from '@/lib/communication';
+import { motion, AnimatePresence } from 'framer-motion';
 
 
 import { Button } from '@/components/ui/button';
@@ -50,6 +51,7 @@ export const PatientsView = ({
 }) => {
     const [riskFilter, setRiskFilter] = React.useState<string>('ALL');
     const [stageFilter, setStageFilter] = React.useState<string>('ALL');
+    const [isFilterOpen, setIsFilterOpen] = React.useState(false);
 
     const filteredPatients = patients.filter(p => {
         const nameMatch = p.name?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -118,6 +120,98 @@ export const PatientsView = ({
                         />
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
+                        <div className="relative">
+                            <Button 
+                                variant="outline" 
+                                onClick={() => setIsFilterOpen(!isFilterOpen)}
+                                className={cn(
+                                    "rounded-xl border-slate-200 font-bold uppercase text-[10px] tracking-widest gap-2 transition-all",
+                                    (riskFilter !== 'ALL' || stageFilter !== 'ALL' || isFilterOpen) && "bg-primary/5 border-primary/40 text-primary shadow-sm"
+                                )}
+                            >
+                                <Filter className="h-4 w-4" /> 
+                                Filter 
+                                {(riskFilter !== 'ALL' || stageFilter !== 'ALL') && (
+                                    <span className="ml-1 h-2 w-2 rounded-full bg-primary" />
+                                )}
+                            </Button>
+
+                            <AnimatePresence>
+                                {isFilterOpen && (
+                                    <>
+                                        {/* Overlay to close on outside click */}
+                                        <div 
+                                            className="fixed inset-0 z-40 bg-transparent" 
+                                            onClick={() => setIsFilterOpen(false)} 
+                                        />
+                                        <motion.div 
+                                            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                                            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                            transition={{ duration: 0.2, ease: "easeOut" }}
+                                            className="absolute right-0 top-full mt-3 w-[300px] md:w-[350px] bg-card border border-border shadow-2xl rounded-[2rem] p-6 z-50 ring-1 ring-black/5"
+                                        >
+                                            <div className="space-y-6">
+                                                <div>
+                                                    <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest mb-4">Risk Severity Matrix</p>
+                                                    <div className="grid grid-cols-2 gap-2">
+                                                        {['ALL', 'RED', 'YELLOW', 'GREEN'].map((r) => (
+                                                            <button
+                                                                key={r}
+                                                                onClick={() => setRiskFilter(r)}
+                                                                className={cn(
+                                                                    "px-3 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border text-left flex items-center justify-between",
+                                                                    riskFilter === r 
+                                                                        ? "bg-primary text-primary-foreground border-primary" 
+                                                                        : "bg-muted/50 text-muted-foreground border-border hover:border-primary/20"
+                                                                )}
+                                                            >
+                                                                {r === 'ALL' ? 'Total Pool' : r}
+                                                                {riskFilter === r && <div className="h-1 w-1 rounded-full bg-white" />}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                </div>
+
+                                                <div className="pt-4 border-t border-border">
+                                                    <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest mb-4">Journey Orchestration</p>
+                                                    <div className="grid grid-cols-1 gap-2">
+                                                        {[
+                                                            { id: 'ALL', label: 'All Engagement Stages' },
+                                                            { id: 'trying_to_conceive', label: 'TTC Tracking' },
+                                                            { id: 'pregnancy', label: 'Active Pregnancy' },
+                                                            { id: 'postpartum', label: 'Postpartum Monitoring' }
+                                                        ].map((s) => (
+                                                            <button
+                                                                key={s.id}
+                                                                onClick={() => setStageFilter(s.id)}
+                                                                className={cn(
+                                                                    "px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border text-left flex items-center justify-between",
+                                                                    stageFilter === s.id 
+                                                                        ? "bg-slate-900 text-white border-slate-900" 
+                                                                        : "bg-muted/50 text-muted-foreground border-border hover:border-slate-400"
+                                                                )}
+                                                            >
+                                                                {s.label}
+                                                                {stageFilter === s.id && <div className="h-1 w-1 rounded-full bg-white" />}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                </div>
+
+                                                <Button 
+                                                    className="w-full rounded-xl bg-primary/10 text-primary hover:bg-primary/20 border-none h-10 font-black uppercase text-[10px] tracking-widest mt-2"
+                                                    onClick={() => setIsFilterOpen(false)}
+                                                >
+                                                    Refine Registry View
+                                                </Button>
+                                            </div>
+                                        </motion.div>
+                                    </>
+                                )}
+                            </AnimatePresence>
+                        </div>
+
                         <Button 
                             variant="outline" 
                             onClick={handleExportExcel}
@@ -130,48 +224,6 @@ export const PatientsView = ({
                 </div>
             </div>
 
-            <div className="flex flex-col gap-4">
-                <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-[10px] font-black uppercase text-muted-foreground mr-2 tracking-widest">Risk Analysis:</span>
-                    {['ALL', 'RED', 'YELLOW', 'GREEN'].map((r) => (
-                        <button
-                            key={r}
-                            onClick={() => setRiskFilter(r)}
-                            className={cn(
-                                "px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all border",
-                                riskFilter === r 
-                                    ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20 scale-105" 
-                                    : "bg-muted text-muted-foreground border-border hover:border-primary/40"
-                            )}
-                        >
-                            {r === 'ALL' ? 'Total Pool' : r}
-                        </button>
-                    ))}
-                </div>
-
-                <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-[10px] font-black uppercase text-muted-foreground mr-2 tracking-widest">Journey Stage:</span>
-                    {[
-                        { id: 'ALL', label: 'All Stages' },
-                        { id: 'trying_to_conceive', label: 'TTC' },
-                        { id: 'pregnancy', label: 'Pregnancy' },
-                        { id: 'postpartum', label: 'Postpartum' }
-                    ].map((s) => (
-                        <button
-                            key={s.id}
-                            onClick={() => setStageFilter(s.id)}
-                            className={cn(
-                                "px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all border",
-                                stageFilter === s.id 
-                                    ? "bg-slate-900 text-white border-slate-900 shadow-lg shadow-slate-900/20 scale-105" 
-                                    : "bg-muted text-muted-foreground border-border hover:border-slate-400"
-                            )}
-                        >
-                            {s.label}
-                        </button>
-                    ))}
-                </div>
-            </div>
 
             <Card className="border-none shadow-2xl rounded-2xl md:rounded-[3rem] overflow-hidden bg-card ring-1 ring-border">
                 <div className="overflow-x-auto">
